@@ -1,4 +1,4 @@
-# BUILD.PROP - Bloco de Notas Secreto (БУИЛД.ПРОП)
+# BUILD.PROP - (БУИЛД.ПРОП)
 
 Um editor de texto único que translitera Português para Cirílico Russo (com toques de Grego) em tempo real. Ele mantém o texto original para cópia e aplica formatação de cores estilo IDE.
 
