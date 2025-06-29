@@ -1,21 +1,14 @@
 # BUILD.PROP - (БУИЛД.ПРОП)
 
-Um editor de texto único que translitera Português para Cirílico Russo (com toques de Grego) em tempo real. Ele mantém o texto original para cópia e aplica formatação de cores estilo IDE.
+Um editor de texto único que translitera texto para Cirílico Russo (com toques de Grego) em tempo real. Ele mantém o texto original para cópia e aplica formatação de cores estilo IDE.
 
 ## Preview
 ![Image](https://github.com/user-attachments/assets/0059ebec-ce67-423d-8127-baf9e97d4464)
 
 ## Destaques
 
-*   **Transliteração Instantânea:** Digite em Português, veja em Russo Cirílico (com caracteres especiais como Ω, Ξ, α).
-*   **Cópia em Português:** `CTRL+C` copia o texto **original em Português**, não o Cirílico.
-*   **Colagem Transliterada:** `CTRL+V` cola texto (assumido como Português) e o exibe em Cirílico.
 *   **Cores de IDE:** Realce visual para strings, comentários, números e palavras-chave.
 *   **Interface Nano:** Barra de status e comandos na parte inferior.
-
-## Como Funciona
-
-Você digita em Português, mas vê em Russo na tela. Ao usar `CTRL+C`, o texto original em Português é copiado. Se colar algo (`CTRL+V`), esse texto é adicionado ao seu original em Português e a tela atualiza com a nova versão em Russo.
 
 ## Pré-requisitos
 
