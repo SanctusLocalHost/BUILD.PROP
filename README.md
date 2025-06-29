@@ -25,10 +25,10 @@ Um editor de texto único que translitera texto para Cirílico Russo (com toques
 
 ## Como Usar
 
-1.  Salve o código como um arquivo `.py` (ex: `editor_secreto.py`).
+1.  Salve o código como um arquivo `.py` (ex: `Build.Prop.py`).
 2.  Execute no terminal:
     ```bash
-    python editor_secreto.py
+    python Build.Prop.py
     ```
 
 ## Atalhos Chave
