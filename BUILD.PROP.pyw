@@ -10,7 +10,9 @@ Mantém o texto original para copiar/colar.
 # pip install customtkinter pyperclip
 
 import customtkinter as ctk
-import tkinter as tk 
+import tkinter as tk
+# IMPORT ADICIONADO PARA A POPUP DE ERRO
+from tkinter import messagebox
 import pyperclip
 import re
 from typing import Dict, List, Tuple, Optional
@@ -33,14 +35,14 @@ UI_TEXT_PASTE = "Paste"; UI_TEXT_JUSTIFY = "Justify"; UI_TEXT_GO_TO_LINE = "Go T
 UI_TEXT_LINE = "Line"; UI_TEXT_COL = "Col"; UI_TEXT_APP_TITLE = "BUILD.PROP"
 UI_TEXT_COPIED_SUCCESS = "Texto original copiado!"; UI_TEXT_COPY_ERROR = "Erro ao copiar."
 
-UI_TRANS_MAP: Dict[str, str] = { 
-    'A': 'А', 'B': 'Б', 'C': 'К', 'D': 'Д', 'E': 'Э', 'F': 'Ф', 'G': 'Г', 'H': 'Х', 'I': 'И', 'J': 'ДЖ', 
-    'K': 'К', 'L': 'Л', 'M': 'М', 'N': 'Н', 'O': 'О', 'P': 'П', 'Q': 'К', 'R': 'Р', 'S': 'С', 'T': 'Т', 
-    'U': 'У', 'V': 'В', 'W': 'В', 'X': 'КС', 'Y': 'Ы', 'Z': 'З', 'a': 'а', 'b': 'б', 'c': 'к', 'd': 'д', 
-    'e': 'э', 'f': 'ф', 'g': 'г', 'h': 'х', 'i': 'и', 'j': 'дж', 'k': 'к', 'l': 'л', 'm': 'м', 'n': 'н', 
-    'o': 'о', 'p': 'п', 'q': 'к', 'r': 'р', 's': 'с', 't': 'т', 'u': 'у', 'v': 'в', 'w': 'в', 'x': 'кс', 
+UI_TRANS_MAP: Dict[str, str] = {
+    'A': 'А', 'B': 'Б', 'C': 'К', 'D': 'Д', 'E': 'Э', 'F': 'Ф', 'G': 'Г', 'H': 'Х', 'I': 'И', 'J': 'ДЖ',
+    'K': 'К', 'L': 'Л', 'M': 'М', 'N': 'Н', 'O': 'О', 'P': 'П', 'Q': 'К', 'R': 'Р', 'S': 'С', 'T': 'Т',
+    'U': 'У', 'V': 'В', 'W': 'В', 'X': 'КС', 'Y': 'Ы', 'Z': 'З', 'a': 'а', 'b': 'б', 'c': 'к', 'd': 'д',
+    'e': 'э', 'f': 'ф', 'g': 'г', 'h': 'х', 'i': 'и', 'j': 'дж', 'k': 'к', 'l': 'л', 'm': 'м', 'n': 'н',
+    'o': 'о', 'p': 'п', 'q': 'к', 'r': 'р', 's': 'с', 't': 'т', 'u': 'у', 'v': 'в', 'w': 'в', 'x': 'кс',
     'y': 'ы', 'z': 'з', '.': '.', ' ': ' ', '@': '@', '~': '~', '/': '/', '$': '$', '[': '[', ']': ']',
-    '_': '_', '-': '-', '1': '1', '0': '0', ':':':', '|':'|', '^':'^', 'G':'Г', 'O':'О', 'F':'Ф', 
+    '_': '_', '-': '-', '1': '1', '0': '0', ':':':', '|':'|', '^':'^', 'G':'Г', 'O':'О', 'F':'Ф',
     'K':'К', 'T':'Т', 'X':'КС', 'R':'Р', 'L':'Л', 'U':'У', 'J':'Й', '\\':'\\'
 }
 NANO_CMD_TRANSLATIONS: Dict[str, str] = {
@@ -63,37 +65,37 @@ def transliterate_ui_text(text_key: str, is_nano_command_text: bool = False) -> 
 
 class SecretNotepad:
     EDITOR_TRANS_MAP: Dict[str, str] = {
-        'a': 'α', 'b': 'б', 'c': 'ск', 'd': 'д', 'e': 'э', 'f': 'ф', 'g': 'г', 'h': 'х', 'i': 'и', 'j': 'дж', 
-        'k': 'к', 'l': 'л', 'm': 'м', 'n': 'н', 'o': 'о', 'p': 'п', 'q': 'к', 'r': 'р', 's': 'с', 't': 'т', 
-        'u': 'у', 'v': 'в', 'w': 'в', 'x': 'ξ', 'y': 'ы', 'z': 'з', 'ç': 'с', 'A': 'А', 'B': 'Б', 'C': 'СК', 
-        'D': 'Д', 'E': 'Э', 'F': 'Ф', 'G': 'Г', 'H': 'Х', 'I': 'И', 'J': 'ДЖ', 'K': 'К', 'L': 'Л', 'M': 'М', 
-        'N': 'Н', 'O': 'Ω', 'P': 'П', 'Q': 'К', 'R': 'Р', 'S': 'С', 'T': 'Т', 'U': 'У', 'V': 'В', 'W': 'В', 
-        'X': 'Ξ', 'Y': 'Ы', 'Z': 'З', 'Ç': 'С', 'á': 'α', 'à': 'α', 'ã': 'α', 'â': 'α', 'ä': 'α', 'é': 'э', 
-        'è': 'э', 'ê': 'э', 'ë': 'э', 'í': 'и', 'ì': 'и', 'î': 'и', 'ï': 'и', 'ó': 'о', 'ò': 'о', 'õ': 'о', 
-        'ô': 'о', 'ö': 'о', 'ú': 'у', 'ù': 'у', 'û': 'у', 'ü': 'у', 'Á': 'А', 'À': 'А', 'Ã': 'А', 'Â': 'А', 
-        'Ä': 'А', 'É': 'Э', 'È': 'Э', 'Ê': 'Э', 'Ë': 'Э', 'Í': 'И', 'Ì': 'И', 'Î': 'И', 'Ï': 'И', 'Ó': 'Ω', 
+        'a': 'α', 'b': 'б', 'c': 'ск', 'd': 'д', 'e': 'э', 'f': 'ф', 'g': 'г', 'h': 'х', 'i': 'и', 'j': 'дж',
+        'k': 'к', 'l': 'л', 'm': 'м', 'n': 'н', 'o': 'о', 'p': 'п', 'q': 'к', 'r': 'р', 's': 'с', 't': 'т',
+        'u': 'у', 'v': 'в', 'w': 'в', 'x': 'ξ', 'y': 'ы', 'z': 'з', 'ç': 'с', 'A': 'А', 'B': 'Б', 'C': 'СК',
+        'D': 'Д', 'E': 'Э', 'F': 'Ф', 'G': 'Г', 'H': 'Х', 'I': 'И', 'J': 'ДЖ', 'K': 'К', 'L': 'Л', 'M': 'М',
+        'N': 'Н', 'O': 'Ω', 'P': 'П', 'Q': 'К', 'R': 'Р', 'S': 'С', 'T': 'Т', 'U': 'У', 'V': 'В', 'W': 'В',
+        'X': 'Ξ', 'Y': 'Ы', 'Z': 'З', 'Ç': 'С', 'á': 'α', 'à': 'α', 'ã': 'α', 'â': 'α', 'ä': 'α', 'é': 'э',
+        'è': 'э', 'ê': 'э', 'ë': 'э', 'í': 'и', 'ì': 'и', 'î': 'и', 'ï': 'и', 'ó': 'о', 'ò': 'о', 'õ': 'о',
+        'ô': 'о', 'ö': 'о', 'ú': 'у', 'ù': 'у', 'û': 'у', 'ü': 'у', 'Á': 'А', 'À': 'А', 'Ã': 'А', 'Â': 'А',
+        'Ä': 'А', 'É': 'Э', 'È': 'Э', 'Ê': 'Э', 'Ë': 'Э', 'Í': 'И', 'Ì': 'И', 'Î': 'И', 'Ï': 'И', 'Ó': 'Ω',
         'Ò': 'Ω', 'Õ': 'Ω', 'Ô': 'Ω', 'Ö': 'Ω', 'Ú': 'У', 'Ù': 'У', 'Û': 'У', 'Ü': 'У',
     }
     HIGHLIGHT_COLORS: Dict[str, str] = {
-        "string": "light sea green", "comment": "gray55", "bracket_delimiter": "orange", "paren_delimiter": "sky blue", 
+        "string": "light sea green", "comment": "gray55", "bracket_delimiter": "orange", "paren_delimiter": "sky blue",
         "brace_delimiter": "magenta", "bracket_content": "gold", "paren_content": "cyan", "brace_content": "lightcoral",
-        "keyword": "orchid1", "number": "khaki1" 
+        "keyword": "orchid1", "number": "khaki1"
     }
     HIGHLIGHT_PATTERNS: List[Tuple[str, str]] = [
-        ("comment", r"#[^\n]*"), ("string", r'"[^"\\]*(?:\\.[^"\\]*)*"'), ("string", r"'[^'\\]*(?:\\.[^'\\]*)*'"), 
-        ("number", r"\b\d+\.?\d*\b"), ("paren_content", r"\(([^()\\]*(?:\\.[^()\\]*)*)\)"), 
+        ("comment", r"#[^\n]*"), ("string", r'"[^"\\]*(?:\\.[^"\\]*)*"'), ("string", r"'[^'\\]*(?:\\.[^'\\]*)*'"),
+        ("number", r"\b\d+\.?\d*\b"), ("paren_content", r"\(([^()\\]*(?:\\.[^()\\]*)*)\)"),
         ("bracket_content", r"\[([^\[\]\\]*(?:\\.[^\[\]\\]*)*)\]"), ("brace_content", r"\{([^\{\}\\]*(?:\\.[^\{\}\\]*)*)\}"),
         ("paren_delimiter", r"\(|\)"), ("bracket_delimiter", r"\[|\]"), ("brace_delimiter", r"\{|\}")
     ]
 
     def __init__(self):
         self.root = ctk.CTk()
-        self.root.title(transliterate_ui_text(UI_TEXT_APP_TITLE)) 
-        self.root.geometry("900x700")
+        self.root.title(transliterate_ui_text(UI_TEXT_APP_TITLE))
+        self.root.geometry("400x400")
         ctk.set_appearance_mode("dark")
         self.original_text: str = ""
-        portuguese_keywords = ["if", "else", "elif", "for", "while", "def", "class", "return", "try", "except", "finally", 
-                               "import", "from", "pass", "break", "continue", "True", "False", "None", "and", "or", 
+        portuguese_keywords = ["if", "else", "elif", "for", "while", "def", "class", "return", "try", "except", "finally",
+                               "import", "from", "pass", "break", "continue", "True", "False", "None", "and", "or",
                                "not", "in", "is", "lambda"]
         self.transliterated_keywords: List[str] = sorted(list(set(kw_trans for kw_trans in (self.transliterate(kw) for kw in portuguese_keywords) if kw_trans)), key=len, reverse=True)
         self._setup_ui(); self._bind_events(); self.update_status()
@@ -129,7 +131,7 @@ class SecretNotepad:
                 cmd_frame.pack(side="left", padx=(5,2))
                 ctk.CTkLabel(cmd_frame, text=shortcut_key, font=FONT_CONSOLAS_NANO, text_color=COLOR_NANO_CMD_KEY, fg_color=nano_bar_bg).pack(side="left")
                 ctk.CTkLabel(cmd_frame, text=" "+transliterate_ui_text(text_key, True), font=FONT_CONSOLAS_NANO, text_color=COLOR_NANO_CMD_TEXT, fg_color=nano_bar_bg).pack(side="left", padx=(0,5))
-    
+
     def _setup_ui(self):
         self.root.configure(fg_color=COLOR_BLACK)
         editor_main_frame = ctk.CTkFrame(self.root, fg_color=COLOR_BLACK); editor_main_frame.pack(fill="both", expand=True)
@@ -149,31 +151,31 @@ class SecretNotepad:
 
     def on_key_press(self, event: tk.Event):
         nav_keys = ['Left', 'Right', 'Up', 'Down', 'Home', 'End', 'Prior', 'Next', 'Shift_L', 'Shift_R', 'Control_L', 'Control_R', 'Alt_L', 'Alt_R', 'Tab', 'Caps_Lock', 'Escape'] + [f'F{i}' for i in range(1, 13)]
-        if event.keysym in nav_keys: return 
+        if event.keysym in nav_keys: return
         is_ctrl_pressed = (event.state & 0x4) != 0
         if is_ctrl_pressed:
             key_lower = event.keysym.lower()
-            if key_lower == 'a': self.select_all_text(); return "break" 
+            if key_lower == 'a': self.select_all_text(); return "break"
             if key_lower == 'c': self.copy_text(); return "break"
-            if key_lower == 'v': self.on_paste(event); return "break" 
-            if key_lower == 'x': 
-                self.copy_text() 
+            if key_lower == 'v': self.on_paste(event); return "break"
+            if key_lower == 'x':
+                self.copy_text()
                 try:
                     sel_first_tk = self.text_area.index(tk.SEL_FIRST); sel_last_tk = self.text_area.index(tk.SEL_LAST)
                     orig_sel_start = self._get_original_pos_from_tk_idx_str(sel_first_tk); orig_sel_end = self._get_original_pos_from_tk_idx_str(sel_last_tk)
                     if orig_sel_start < orig_sel_end: self.original_text = self.original_text[:orig_sel_start] + self.original_text[orig_sel_end:]; self.update_display_and_cursor(orig_sel_start)
                 except tk.TclError: pass
                 return "break"
-            if key_lower == 'z': return 
-            return 
-        final_orig_cursor_pos = -1 
-        try: 
+            if key_lower == 'z': return
+            return
+        final_orig_cursor_pos = -1
+        try:
             sel_first_tk = self.text_area.index(tk.SEL_FIRST); sel_last_tk = self.text_area.index(tk.SEL_LAST)
             orig_sel_start = self._get_original_pos_from_tk_idx_str(sel_first_tk); orig_sel_end = self._get_original_pos_from_tk_idx_str(sel_last_tk)
-            if orig_sel_start < orig_sel_end: 
+            if orig_sel_start < orig_sel_end:
                 if event.keysym in ['BackSpace', 'Delete']: self.original_text = self.original_text[:orig_sel_start] + self.original_text[orig_sel_end:]; final_orig_cursor_pos = orig_sel_start
                 elif event.char and event.char.isprintable(): self.original_text = self.original_text[:orig_sel_start] + event.char + self.original_text[orig_sel_end:]; final_orig_cursor_pos = orig_sel_start + len(event.char)
-        except tk.TclError: 
+        except tk.TclError:
             current_orig_cursor_pos = self._get_original_pos_from_tk_idx_str(self.text_area.index(tk.INSERT))
             if event.keysym == 'BackSpace':
                 if current_orig_cursor_pos > 0: self.original_text = self.original_text[:current_orig_cursor_pos-1] + self.original_text[current_orig_cursor_pos:]; final_orig_cursor_pos = current_orig_cursor_pos - 1
@@ -182,7 +184,7 @@ class SecretNotepad:
             elif event.char and event.char.isprintable(): self.original_text = self.original_text[:current_orig_cursor_pos] + event.char + self.original_text[current_orig_cursor_pos:]; final_orig_cursor_pos = current_orig_cursor_pos + len(event.char)
             elif event.keysym == 'Return': self.original_text = self.original_text[:current_orig_cursor_pos] + '\n' + self.original_text[current_orig_cursor_pos:]; final_orig_cursor_pos = current_orig_cursor_pos + 1
         if final_orig_cursor_pos != -1: self.update_display_and_cursor(final_orig_cursor_pos); return "break"
-        return 
+        return
 
     def _get_char_transliteration(self, char_to_trans: str, p_count: int, i_count: int, is_first_char_of_word: bool) -> str:
         if char_to_trans.lower() == 'p' and p_count == 2: return 'Ψ' if char_to_trans.isupper() else 'ψ'
@@ -192,13 +194,13 @@ class SecretNotepad:
 
     def _get_original_pos_from_tk_idx_str(self, tk_idx_str: str) -> int:
         try: self.text_area.index(tk_idx_str); cyrillic_prefix_target_len = len(self.text_area.get("0.0", tk_idx_str))
-        except tk.TclError: cyrillic_prefix_target_len = 0 
+        except tk.TclError: cyrillic_prefix_target_len = 0
         if cyrillic_prefix_target_len == 0: return 0
-        current_transliterated_len = 0; original_idx_counter = 0 
+        current_transliterated_len = 0; original_idx_counter = 0
         words_in_original = re.findall(r'\S+|\s+', self.original_text)
         if not self.original_text and cyrillic_prefix_target_len > 0: return 0
         for word_orig in words_in_original:
-            if not word_orig.strip(): 
+            if not word_orig.strip():
                 for space_char in word_orig:
                     current_transliterated_len += len(space_char); original_idx_counter += 1
                     if current_transliterated_len >= cyrillic_prefix_target_len: return original_idx_counter
@@ -226,8 +228,8 @@ class SecretNotepad:
         self.text_area.bind('<KeyPress>', self.on_key_press, add="+")
         self.apply_syntax_highlighting(); self.text_area.yview_moveto(current_yview[0])
         cyrillic_prefix_to_cursor = self.transliterate(self.original_text[:new_original_cursor_position])
-        new_tk_cursor_str = f"0.0 + {len(cyrillic_prefix_to_cursor)}c" 
-        self.text_area.mark_set(tk.INSERT, new_tk_cursor_str); self.text_area.see(tk.INSERT) 
+        new_tk_cursor_str = f"0.0 + {len(cyrillic_prefix_to_cursor)}c"
+        self.text_area.mark_set(tk.INSERT, new_tk_cursor_str); self.text_area.see(tk.INSERT)
         if sel_orig_start != -1 and sel_orig_end != -1 and sel_orig_start < sel_orig_end:
             sel_cyr_start_text = self.transliterate(self.original_text[:sel_orig_start]); sel_cyr_end_text = self.transliterate(self.original_text[:sel_orig_end])
             tk_sel_start = f"0.0 + {len(sel_cyr_start_text)}c"; tk_sel_end = f"0.0 + {len(sel_cyr_end_text)}c"
@@ -235,7 +237,7 @@ class SecretNotepad:
         self.update_status()
 
     def transliterate(self, text: str) -> str:
-        result_parts: List[str] = []; words_and_spaces = re.findall(r'\S+|\s+', text) 
+        result_parts: List[str] = []; words_and_spaces = re.findall(r'\S+|\s+', text)
         for segment in words_and_spaces:
             if not segment.strip(): result_parts.append(segment); continue
             word_result = ""; i_count = 0; p_count = 0; is_first_char_of_word = True
@@ -280,26 +282,26 @@ class SecretNotepad:
         self.text_area.mark_set(tk.INSERT, current_insert)
         if selection_ranges: self.text_area.tag_add(tk.SEL, selection_ranges[0], selection_ranges[1])
 
-    def on_paste(self, event: Optional[tk.Event] = None): 
+    def on_paste(self, event: Optional[tk.Event] = None):
         try:
             pasted_text = self.root.clipboard_get();
             if not pasted_text: return "break"
             current_tk_cursor_pos_str = self.text_area.index(tk.INSERT); orig_insert_pos = 0
-            try: 
+            try:
                 sel_first_tk = self.text_area.index(tk.SEL_FIRST); sel_last_tk = self.text_area.index(tk.SEL_LAST)
                 orig_sel_start = self._get_original_pos_from_tk_idx_str(sel_first_tk); orig_sel_end = self._get_original_pos_from_tk_idx_str(sel_last_tk)
                 self.original_text = self.original_text[:orig_sel_start] + pasted_text + self.original_text[orig_sel_end:]; orig_insert_pos = orig_sel_start + len(pasted_text)
-            except tk.TclError: 
+            except tk.TclError:
                 orig_insert_pos_at_cursor = self._get_original_pos_from_tk_idx_str(current_tk_cursor_pos_str)
                 self.original_text = self.original_text[:orig_insert_pos_at_cursor] + pasted_text + self.original_text[orig_insert_pos_at_cursor:]; orig_insert_pos = orig_insert_pos_at_cursor + len(pasted_text)
             self.update_display_and_cursor(orig_insert_pos)
         except Exception: pass
-        return "break" 
+        return "break"
 
     def copy_text(self, event: Optional[tk.Event] = None):
         try:
-            pyperclip.copy(self.original_text) 
-            feedback_msg = transliterate_ui_text(UI_TEXT_COPIED_SUCCESS) 
+            pyperclip.copy(self.original_text)
+            feedback_msg = transliterate_ui_text(UI_TEXT_COPIED_SUCCESS)
             original_nano_status = self.nano_status_label.cget("text")
             self.nano_status_label.configure(text=f"[ {feedback_msg} ]")
             self.root.after(2000, lambda: self.nano_status_label.configure(text=original_nano_status) if hasattr(self, 'nano_status_label') and self.nano_status_label.winfo_exists() else self.update_status())
@@ -311,13 +313,13 @@ class SecretNotepad:
         return "break"
 
     def clear_all_text(self): self.original_text = ""; self.update_display_and_cursor(0)
-    def select_all_text(self, event: Optional[tk.Event] = None): self.text_area.tag_add(tk.SEL, "0.0", tk.END); return "break" 
+    def select_all_text(self, event: Optional[tk.Event] = None): self.text_area.tag_add(tk.SEL, "0.0", tk.END); return "break"
 
     def update_status(self):
         if not hasattr(self, 'nano_status_label') or not self.nano_status_label.winfo_exists(): return
         cursor_orig_pos = 0
         try: current_tk_insert = self.text_area.index(tk.INSERT); cursor_orig_pos = self._get_original_pos_from_tk_idx_str(current_tk_insert)
-        except tk.TclError: cursor_orig_pos = len(self.original_text) 
+        except tk.TclError: cursor_orig_pos = len(self.original_text)
         text_before_cursor_orig = self.original_text[:cursor_orig_pos]
         cursor_line_orig = text_before_cursor_orig.count('\n') + 1
         cursor_col_orig = len(text_before_cursor_orig.split('\n')[-1]) + 1
@@ -327,6 +329,62 @@ class SecretNotepad:
 
     def run(self): self.root.mainloop()
 
+# --- INÍCIO DAS MODIFICAÇÕES ---
+def perform_login():
+    """
+    Função que gerencia o fluxo de login.
+    Retorna True se o login for bem-sucedido, False caso contrário.
+    """
+    # Define o login correto (em minúsculas para comparação)
+    CORRECT_LOGIN = "sanctus@localhost"
+    
+    # Cria uma janela raiz temporária e a esconde.
+    # Ela é necessária para ser a "mãe" das caixas de diálogo.
+    root = ctk.CTk()
+    root.withdraw()
+    
+    login_successful = False
+    
+    while True:
+        dialog = ctk.CTkInputDialog(
+            text="Por favor, insira o seu login:",
+            title="Autenticação Necessária"
+        )
+        # Centraliza a janela de diálogo
+        dialog.geometry(f"+{root.winfo_screenwidth()//2 - dialog.winfo_width()}+{root.winfo_screenheight()//2 - dialog.winfo_height()}")
+        
+        user_input = dialog.get_input()
+
+        # Caso 1: O usuário fechou a caixa de diálogo (clicou no 'X' ou 'Cancelar')
+        if user_input is None:
+            login_successful = False
+            break # Sai do loop, a aplicação não vai iniciar
+
+        # Caso 2: O usuário inseriu o login correto (ignorando maiúsculas/minúsculas)
+        if user_input.lower() == CORRECT_LOGIN:
+            login_successful = True
+            break # Sai do loop, a aplicação vai iniciar
+
+        # Caso 3: O usuário inseriu o login incorreto
+        else:
+            # Mostra uma mensagem de erro. A janela de erro precisa de uma "mãe", por isso usamos a root escondida.
+            messagebox.showerror("Erro de Login", "Usuário inválido. Acesso negado.")
+            # O loop continuará, pedindo o login novamente.
+
+    # Destrói a janela raiz temporária que não é mais necessária
+    root.destroy()
+    return login_successful
+
 if __name__ == "__main__":
-    app = SecretNotepad()
-    app.run()
+    # Define o tema antes de qualquer janela
+    ctk.set_appearance_mode("dark")
+
+    # Executa a função de login e verifica o resultado
+    if perform_login():
+        # Se o login foi bem-sucedido, cria e executa a aplicação principal
+        app = SecretNotepad()
+        app.run()
+    else:
+        # Se o login falhou (usuário cancelou), o programa simplesmente termina.
+        print("Login cancelado. Encerrando a aplicação.")
+# --- FIM DAS MODIFICAÇÕES ---
